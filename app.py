@@ -3,7 +3,8 @@ from tkinter import ttk
 
 # import my file pull_v5.py
 # from pull_v6 import pull_file_from_device
-
+from air_api import get_pm25
+from pull import pull_file_from_device
 
 # import pymysql
 import os
@@ -15,11 +16,6 @@ from datetime import datetime, timezone, timedelta
 import tkinter.font as tkFont
 import matplotlib.dates as mdates
 
-# Get today's date
-today_date = datetime.now().strftime("%Y%m%d")
-
-# Get downloads folder
-user_downloads_folder = os.path.expanduser("~/Downloads")
 
 # D:\D_Download\zap_database
 
@@ -44,6 +40,24 @@ def query_info():
 
 interval = "5T"
 time = 1
+
+
+device_file = "/data/data/com.avalue.factory_test2/databases"  # 平板檔案路徑
+
+user_downloads_folder = os.path.join(os.path.expanduser("~"), "Downloads")
+
+today_date = datetime.today().strftime("%Y_%m_%d")
+
+
+local_file = os.path.join(user_downloads_folder, f"zap_database_{today_date}")
+
+def get_zap_database():
+    pull_file_from_device(
+        device_file,
+        local_file,),
+    msg = "下載資料庫成功，檔名為zap_dabase_[下載日期]，存放Downloads資料夾"
+    strVar1.set(msg)
+    print("使用者下載資料庫成功，檔名為zap_dabase_[下載日期]，存放Downloads資料夾")
 
 
 def click_button1_2():
@@ -97,6 +111,13 @@ def click_plot_button(interval, time):
     print("目前折線圖成功繪製，檔名為bar_chart.jpg，存放於目前資料夾")
 
 
+def download_pm25():
+    get_pm25()
+    msg2 = "下載PM2.5資料並存成CSV檔案，檔名為pm25.csv，存放於目前資料夾"
+    strVar1.set(msg2)
+    print("使用者下載PM2.5資料並存成CSV檔案，檔名為pm25.csv，存放於目前資料夾")
+
+
 root = tk.Tk()
 root.title("GUI Ver1 @v0.02 2024-11-13")
 root.geometry("800x400")
@@ -109,6 +130,7 @@ tab1 = ttk.Frame(notebook)
 notebook.add(tab1, text="page 1")
 
 strVar1 = tk.StringVar()
+# strVar2 = tk.StringVar()
 fontStyle = tkFont.Font(family="Helvetica", size=11, weight="normal", slant="roman")
 
 button1_1 = tk.Button(
@@ -119,8 +141,9 @@ button1_1 = tk.Button(
     #     "/data/data/com.avalue.factory_test2/databases",
     #     os.path.join(user_downloads_folder, f"newname_{today_date}"),
     # ),
+    command=get_zap_database,
     # command=query_info,
-    command=lambda: print("Page 1 按鈕 1 被點擊"),
+    # command=lambda: print("Page 1 按鈕 1 被點擊"),
 )
 # button1_1.pack(side='left',pady=5,padx=10)
 button1_1.grid(column=0, row=0, padx=5, pady=10)
@@ -211,12 +234,23 @@ notebook.add(tab2, text="page2")
 
 button2_1 = tk.Button(
     tab2,
-    text="按鈕 2",
+    text="Download PM2.5 data",
     font=("Arial", 16),
-    command=lambda: print("Page 2 按鈕 2 被點擊"),
+    command=lambda: download_pm25(),
+    # command=lambda: print("Page 2 按鈕 2 被點擊"),
 )
 button2_1.pack(pady=20)
 
+label2 = tk.Label(
+    master=tab2,
+    bg="light grey",
+    width=60,
+    height=2,
+    textvariable=strVar1,
+    font=fontStyle,
+)
+# label2.grid(row=30, column=1, padx=10, pady=40)
+label2.pack(padx=10, pady=40)
 
 notebook.pack(expand=True, fill="both")
 
